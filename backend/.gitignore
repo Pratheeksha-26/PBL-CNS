@@ -1,0 +1,7 @@
+node_modules/
+.env
+keys/*.pem
+uploads/certificates/*
+uploads/photos/*
+!uploads/certificates/.gitkeep
+!uploads/photos/.gitkeep

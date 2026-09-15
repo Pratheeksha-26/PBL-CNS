@@ -1,0 +1,8 @@
+node_modules/
+.env
+backend/keys/*.pem
+backend/uploads/certificates/*
+backend/uploads/photos/*
+!backend/uploads/certificates/.gitkeep
+!backend/uploads/photos/.gitkeep
+dist/
