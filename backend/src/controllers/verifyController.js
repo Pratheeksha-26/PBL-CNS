@@ -99,6 +99,7 @@ async function verifyCertificate(req, res, next) {
             position: certificate.position,
             eventDate: certificate.eventDate,
             issuingAuthority: certificate.issuingAuthority,
+            organizerName: certificate.organizerName || 'Unknown organizer',
             issuedAt: certificate.createdAt,
             status: certificate.status,
           }

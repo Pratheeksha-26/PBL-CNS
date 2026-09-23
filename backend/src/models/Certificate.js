@@ -30,6 +30,7 @@ const certificateSchema = new mongoose.Schema(
     position: { type: String, default: '' },
     eventDate: { type: String, required: true }, // YYYY-MM-DD, normalized
     issuingAuthority: { type: String, required: true },
+    organizerName: { type: String, default: '' },
 
     // Cryptographic artifacts
     canonicalDataHash: { type: String, required: true }, // SHA-256 hex

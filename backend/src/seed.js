@@ -21,8 +21,11 @@ const { signData, getPublicKeyFingerprint } = require('./utils/crypto/rsa');
 const { generateVerificationQR } = require('./utils/qrcode');
 const { generateCertificatePDF } = require('./utils/pdfGenerator');
 
-async function seed() {
-  await connectDB();
+async function seed({ skipConnection = false } = {}) {
+  if (!skipConnection) {
+    await connectDB();
+  }
+
   console.log('[SEED] Clearing existing data...');
   await Promise.all([
     User.deleteMany({}),
@@ -36,11 +39,22 @@ async function seed() {
   ]);
 
   console.log('[SEED] Creating users...');
-  const admin = await User.create({ name: 'System Admin', email: 'admin@demo.com', password: 'Admin@1234', role: 'admin' });
-  const organizer = await User.create({ name: 'Priya Sharma', email: 'organizer@demo.com', password: 'Organizer@1234', role: 'organizer' });
-  const verifier = await User.create({ name: 'Recruiter Corp HR', email: 'verifier@demo.com', password: 'Verifier@1234', role: 'verifier' });
-  const athleteUser1 = await User.create({ name: 'Arjun Rao', email: 'athlete@demo.com', password: 'Athlete@1234', role: 'athlete' });
-  const athleteUser2 = await User.create({ name: 'Sneha Kulkarni', email: 'athlete2@demo.com', password: 'Athlete@1234', role: 'athlete' });
+  const createDemoUser = async ({ name, email, password, role }) => {
+    try {
+      return await User.create({ name, email: email.toLowerCase(), password, role, isActive: true });
+    } catch (err) {
+      if (err.code === 11000) {
+        return await User.findOne({ email: email.toLowerCase() });
+      }
+      throw err;
+    }
+  };
+
+  const admin = await createDemoUser({ name: 'System Admin', email: 'admin@demo.com', password: 'Admin@1234', role: 'admin' });
+  const organizer = await createDemoUser({ name: 'Priya Sharma', email: 'organizer@demo.com', password: 'Organizer@1234', role: 'organizer' });
+  const verifier = await createDemoUser({ name: 'Recruiter Corp HR', email: 'verifier@demo.com', password: 'Verifier@1234', role: 'verifier' });
+  const athleteUser1 = await createDemoUser({ name: 'Arjun Rao', email: 'athlete@demo.com', password: 'Athlete@1234', role: 'athlete' });
+  const athleteUser2 = await createDemoUser({ name: 'Sneha Kulkarni', email: 'athlete2@demo.com', password: 'Athlete@1234', role: 'athlete' });
 
   const athlete1 = await Athlete.create({ user: athleteUser1._id, bio: 'State-level sprinter.' });
   athlete1.setSensitiveFields({ dateOfBirth: '2002-05-14', phone: '+91-9876543210', address: 'Mangaluru, Karnataka', governmentId: 'GOVID-1234-5678' });
@@ -165,7 +179,11 @@ async function seed() {
   process.exit(0);
 }
 
-seed().catch((err) => {
-  console.error('[SEED] Failed:', err);
-  process.exit(1);
-});
+if (require.main === module) {
+  seed().catch((err) => {
+    console.error('[SEED] Failed:', err);
+    process.exit(1);
+  });
+}
+
+module.exports = { seed };

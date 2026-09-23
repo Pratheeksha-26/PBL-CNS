@@ -38,8 +38,8 @@ export function AuthProvider({ children }) {
     return res.data.user;
   }, []);
 
-  const register = useCallback(async (name, email, password) => {
-    const res = await api.post('/auth/register', { name, email, password });
+  const register = useCallback(async (name, email, password, role = 'athlete') => {
+    const res = await api.post('/auth/register', { name, email, password, role });
     localStorage.setItem('token', res.data.token);
     localStorage.setItem('user', JSON.stringify(res.data.user));
     setUser(res.data.user);

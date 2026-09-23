@@ -7,7 +7,7 @@ import { CryptoStepsList } from '../components/CryptoInfo';
 const RESULT_STYLES = {
   VALID: {
     icon: '✅',
-    title: 'AUTHENTIC / VALID',
+    title: 'VERIFIED CERTIFICATE',
     box: 'bg-emerald-50 border-emerald-300',
     heading: 'text-emerald-800',
     text: 'text-emerald-700',
@@ -66,13 +66,17 @@ export default function VerifyPage() {
   };
 
   useEffect(() => {
-    if (paramId) runVerification(paramId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setCertificateId(paramId || '');
   }, [paramId]);
 
   const submit = (e) => {
     e.preventDefault();
-    navigate(`/verify/${encodeURIComponent(certificateId.trim())}`);
+    const id = certificateId.trim();
+    if (!id) return;
+    if (id !== paramId) {
+      navigate(`/verify/${encodeURIComponent(id)}`, { replace: true });
+    }
+    runVerification(id);
   };
 
   const style = data ? RESULT_STYLES[data.result] || RESULT_STYLES.NOT_FOUND : null;
@@ -116,24 +120,28 @@ export default function VerifyPage() {
 
           {data.certificate && (
             <div className="card">
-              <h3 className="font-semibold text-slate-900 mb-3">Certificate Details</h3>
+              <h3 className="font-semibold text-slate-900 mb-3">Verified Certificate Details</h3>
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <dt className="text-slate-500">Certificate ID</dt>
                 <dd className="font-mono text-slate-900">{data.certificate.certificateId}</dd>
-                <dt className="text-slate-500">Athlete</dt>
-                <dd className="text-slate-900 font-medium">{data.certificate.athleteName}</dd>
+                <dt className="text-slate-500">Athlete Name</dt>
+                <dd className="text-slate-900 font-semibold">{data.certificate.athleteName}</dd>
                 <dt className="text-slate-500">Event</dt>
                 <dd className="text-slate-900">{data.certificate.eventName}</dd>
                 <dt className="text-slate-500">Sport</dt>
                 <dd className="text-slate-900">{data.certificate.sportName}</dd>
+                <dt className="text-slate-500">Position</dt>
+                <dd className="text-slate-900 font-semibold">{data.certificate.position || 'Not specified'}</dd>
                 <dt className="text-slate-500">Achievement</dt>
                 <dd className="text-slate-900">
-                  {data.certificate.achievement} {data.certificate.position && `(${data.certificate.position})`}
+                  {data.certificate.achievement}
                 </dd>
                 <dt className="text-slate-500">Event Date</dt>
                 <dd className="text-slate-900">{data.certificate.eventDate}</dd>
                 <dt className="text-slate-500">Issuing Authority</dt>
                 <dd className="text-slate-900">{data.certificate.issuingAuthority}</dd>
+                <dt className="text-slate-500">Organizer</dt>
+                <dd className="text-slate-900">{data.certificate.organizerName || 'Unknown organizer'}</dd>
                 <dt className="text-slate-500">Status</dt>
                 <dd className="text-slate-900">{data.certificate.status}</dd>
               </dl>

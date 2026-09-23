@@ -24,10 +24,25 @@ const app = express();
 // --- Security middleware ---
 app.use(helmet());
 
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:5174',
+  'http://127.0.0.1:5174',
+  'http://192.168.1.12:5173',
+  'http://192.168.1.12:5174',
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error('CORS policy denied this origin'));
+    },
     credentials: true,
   })
 );

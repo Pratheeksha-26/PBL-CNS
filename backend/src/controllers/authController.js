@@ -17,15 +17,22 @@ function signToken(user) {
  */
 async function register(req, res, next) {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role = 'athlete' } = req.body;
+    const allowedRoles = ['athlete', 'organizer', 'admin'];
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ success: false, message: 'Role must be athlete, organizer, or admin' });
+    }
 
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) {
       return res.status(409).json({ success: false, message: 'Email already registered' });
     }
 
-    const user = await User.create({ name, email, password, role: 'athlete' });
-    await Athlete.create({ user: user._id });
+    const user = await User.create({ name, email, password, role });
+    if (role === 'athlete') {
+      await Athlete.create({ user: user._id });
+    }
 
     const token = signToken(user);
     res.status(201).json({ success: true, token, user: user.toSafeJSON() });

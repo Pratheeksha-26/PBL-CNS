@@ -20,7 +20,7 @@ const QRCode = require('qrcode');
  */
 async function generateVerificationQR(certificateId) {
   const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const verificationUrl = `${baseUrl.replace(/\/$/, '')}/verify/${certificateId}`;
+  const verificationUrl = `${baseUrl.replace(/\/$/, '')}/verify/${encodeURIComponent(certificateId)}`;
   const dataUrl = await QRCode.toDataURL(verificationUrl, {
     errorCorrectionLevel: 'M',
     margin: 1,

@@ -11,8 +11,21 @@ export default function AthleteCertificates() {
     api.get('/certificates/mine').then((res) => setCertificates(res.data.certificates)).finally(() => setLoading(false));
   }, []);
 
-  const download = (certificateId) => {
-    window.open(`${import.meta.env.VITE_API_BASE_URL || '/api'}/certificates/${certificateId}/download`, '_blank');
+  const download = async (certificateId) => {
+    try {
+      const res = await api.get(`/certificates/${certificateId}/download`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${certificateId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download PDF:', err);
+      alert(err.response?.data?.message || 'Failed to download certificate PDF');
+    }
   };
 
   if (loading) return <Loader label="Loading certificates..." />;

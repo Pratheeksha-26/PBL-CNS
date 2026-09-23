@@ -7,6 +7,13 @@ const roleHome = { athlete: '/athlete', organizer: '/organizer', admin: '/admin'
 export default function Home() {
   const { user } = useAuth();
 
+  const roleCards = [
+    { title: 'Athlete', key: 'athlete', desc: 'Register for events, track achievements, view and download verified certificates.', icon: '🏃' },
+    { title: 'Organizer', key: 'organizer', desc: 'Create events, approve registrations, record results, and digitally issue certificates.', icon: '📋' },
+    { title: 'Verifier / Recruiter', key: 'verifier', desc: 'Instantly verify any certificate via QR code or Certificate ID — no login needed.', icon: '🔍' },
+    { title: 'Admin', key: 'admin', desc: 'Manage users, roles, events, and monitor system-wide activity.', icon: '🛡️' },
+  ];
+
   return (
     <div className="py-10">
       <div className="text-center max-w-3xl mx-auto">
@@ -33,18 +40,16 @@ export default function Home() {
       </div>
 
       <div className="mt-16 grid md:grid-cols-4 gap-5">
-        {[
-          { title: 'Athlete', desc: 'Register for events, track achievements, view and download verified certificates.', icon: '🏃' },
-          { title: 'Organizer', desc: 'Create events, approve registrations, record results, and digitally issue certificates.', icon: '📋' },
-          { title: 'Verifier / Recruiter', desc: 'Instantly verify any certificate via QR code or Certificate ID — no login needed.', icon: '🔍' },
-          { title: 'Admin', desc: 'Manage users, roles, events, and monitor system-wide activity.', icon: '🛡️' },
-        ].map((r) => (
-          <div key={r.title} className="card text-center">
-            <div className="text-3xl">{r.icon}</div>
-            <h3 className="font-semibold text-slate-900 mt-2">{r.title}</h3>
-            <p className="text-sm text-slate-500 mt-1">{r.desc}</p>
-          </div>
-        ))}
+        {roleCards.map((r) => {
+          const target = r.key === 'verifier' ? '/verify' : `/login?role=${r.key}`;
+          return (
+            <Link key={r.title} to={target} className="card text-center hover:border-brand-300 transition-all hover:shadow-md no-underline">
+              <div className="text-3xl">{r.icon}</div>
+              <h3 className="font-semibold text-slate-900 mt-2">{r.title}</h3>
+              <p className="text-sm text-slate-500 mt-1">{r.desc}</p>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="mt-16 card">

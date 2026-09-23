@@ -77,6 +77,7 @@ async function issueCertificate(req, res, next) {
       position: canonicalData.position,
       eventDate: canonicalData.eventDate,
       issuingAuthority: canonicalData.issuingAuthority,
+      organizerName: req.user?.name || 'Sports Authority',
       canonicalDataHash,
       signature,
       publicKeyFingerprint,

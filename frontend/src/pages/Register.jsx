@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Alert } from '../components/UI';
+
+const roleHome = { athlete: '/athlete', organizer: '/organizer', admin: '/admin', verifier: '/verify' };
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
+  const [searchParams] = useSearchParams();
+  const defaultRole = useMemo(() => {
+    const role = searchParams.get('role');
+    return role && ['athlete', 'organizer', 'admin'].includes(role) ? role : 'athlete';
+  }, [searchParams]);
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', role: defaultRole });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,8 +30,8 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await register(form.name, form.email, form.password);
-      navigate('/athlete');
+      await register(form.name, form.email, form.password, form.role);
+      navigate(roleHome[form.role] || '/');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -35,10 +42,9 @@ export default function Register() {
   return (
     <div className="max-w-md mx-auto mt-8">
       <div className="card">
-        <h2 className="text-xl font-bold text-slate-900 mb-1">Create an athlete account</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-1">Create a {defaultRole} account</h2>
         <p className="text-sm text-slate-500 mb-5">
-          Public sign-up creates an <strong>Athlete</strong> account. Organizer, Verifier, and
-          Admin accounts are created by an administrator.
+          Choose the role you want to register as. Athlete, organizer, and admin accounts can be created here.
         </p>
 
         {error && <div className="mb-4"><Alert type="error">{error}</Alert></div>}
@@ -53,6 +59,14 @@ export default function Register() {
             <input type="email" required className="input" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           </div>
           <div>
+            <label className="label">Role</label>
+            <select className="input" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+              <option value="athlete">Athlete</option>
+              <option value="organizer">Organizer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div>
             <label className="label">Password</label>
             <input type="password" required className="input" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           </div>
@@ -61,12 +75,12 @@ export default function Register() {
             <input type="password" required className="input" value={form.confirm} onChange={(e) => setForm({ ...form, confirm: e.target.value })} />
           </div>
           <button className="btn-primary w-full" disabled={loading}>
-            {loading ? 'Creating account...' : 'Register'}
+            {loading ? 'Creating account...' : `Register as ${form.role}`}
           </button>
         </form>
 
         <p className="text-sm text-slate-500 mt-4 text-center">
-          Already have an account? <Link to="/login" className="text-brand-700 font-medium">Login</Link>
+          Already have an account? <Link to={`/login?role=${form.role}`} className="text-brand-700 font-medium">Login</Link>
         </p>
       </div>
     </div>

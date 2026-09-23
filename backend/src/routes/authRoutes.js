@@ -12,6 +12,7 @@ router.post(
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+    body('role').optional().isIn(['athlete', 'organizer', 'admin']).withMessage('Role must be athlete, organizer, or admin'),
   ],
   validate,
   register
