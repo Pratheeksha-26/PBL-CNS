@@ -4,6 +4,7 @@
  * Run with: npm run seed
  */
 require('dotenv').config();
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 
 const User = require('./models/User');
@@ -176,14 +177,20 @@ async function seed({ skipConnection = false } = {}) {
   console.log(` Verify at: ${verificationUrl}`);
   console.log('========================================================\n');
 
-  process.exit(0);
+  
 }
 
 if (require.main === module) {
-  seed().catch((err) => {
-    console.error('[SEED] Failed:', err);
-    process.exit(1);
-  });
-}
+  seed()
+    .then(() => mongoose.connection.close())
+    .catch(async (err) => {
+      console.error('[SEED] Failed:', err);
 
+      if (mongoose.connection.readyState !== 0) {
+        await mongoose.connection.close();
+      }
+
+      process.exitCode = 1;
+    });
+}
 module.exports = { seed };
